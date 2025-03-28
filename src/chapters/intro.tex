@@ -1,84 +1,33 @@
 \chapter{Introduction}
 \label{chapter:intro}
 
-\textbf{This is just a demo file. It should not be used as a sample for a thesis.}\\
-\todo{Remove this line (this is a TODO)}
+\textit{“But ... it works on my machine...”} is a phrase no developer wants to hear.
+It is a phrase that highlights both the frustration of software engineers and the complexity of
+the software development life cycle. The most common cause for this issue arising lies in the
+mismatch between the developer's local environment and the production environment where the code is run
+\cite{but-it-works-on-my-machine}. On traditional deployments on a physical server or virtual machine, it is
+up to the developer to ensure that all the necessary configurations are met for the application to run,
+which can be a tedious process, especially when the the number of dependencies is high or when we want to 
+upgrade to a newer version.
 
-\section{Project Description}
-\label{sec:proj}
+The solution? ... Using containers. Containers are software that package up code,
+runtime, libraries, config files, everything needed for an application to run \cite{what-are-containers} which 
+can then be executed across different machines without additional setup. This, alongside
+faster boot times, lower resource usage and ease of scale, especially when coupled with orchestration tools like Kubernetes, made containers 
+grow in popularity, even surpassing virtual machines in some cases \cite{containers-usage-statistics}.
 
-\subsection{Project Scope}
-\label{sub-sec:proj-scope}
+However, the comparison with virtual machines, where containers are usually much better, often paints the picture that
+these metrics are irrelevant when it pertains to them, one such metric being size of the container itself. This is not true.
+The size of the container is directly proportional to the number of binaries and packages that are installed and as such
+reducing the size has the following benefits \cite{why-keep-containers-small}:
+\begin{itemize}
+    \item \textbf{Security} - smaller the size, smaller the attack surface a hacker has to work with
+    \item \textbf{Performance and Efficiency} - smaller images are faster to deploy and, in general, use fewer system resources
+    \item \textbf{Maintainability} - smaller images have fewer dependencies, making it easer to maintain and update them
+\end{itemize}
 
-This thesis presents the \textbf{\project}.
-
-This is an example of a footnote \footnote{\url{www.google.com}}. You can see here a reference to \labelindexref{Section}{sub-sec:proj-objectives}.
-
-Here we have defined the CS abbreviation.\abbrev{CS}{Computer Science} and the UPB abbreviation.\abbrev{UPB}{University Politehnica of Bucharest}
-
-The main scope of this project is to qualify xLuna for use in critical systems.
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristiqu dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristiqu dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
-
-
-\subsection{Project Objectives}
-\label{sub-sec:proj-objectives}
-
-We have now included \labelindexref{Figure}{img:report-framework}.
-
-\fig[scale=0.5]{src/img/reporting-framework.pdf}{img:report-framework}{Reporting Framework}
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristiqu dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
-
-We can also have citations like \cite{iso-odf}.
-
-\subsection{Related Work}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristiqu dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristiqu dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristiqu dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
-
-We are now discussing the \textbf{Ultimate answer to all knowledge}.
-This line is particularly important it also adds an index entry for \textit{Ultimate answer to all knowledge}.\index{Ultimate answer to all knowledge}
-
-\subsection{Demo listings}
-
-We can also include listings like the following:
-
-% Inline Listing example
-\lstset{language=make,caption=Application Makefile,label=lst:app-make}
-\begin{lstlisting}
-CSRCS = app.c
-SRC_DIR =..
-include $(SRC_DIR)/config/application.cfg
-\end{lstlisting}
-
-Listings can also be referenced. References don't have to include chapter/table/figure numbers... so we can have hyperlinks \labelref{like this}{lst:makefile-test}.
-
-\subsection{Tables}
-
-We can also have tables... like \labelindexref{Table}{table:reports}.
-
-\begin{center}
-\begin{table}[htb]
-  \caption{Generated reports - associated Makefile targets and scripts}
-  \begin{tabular}{l*{6}{c}r}
-    Generated report & Makefile target & Script \\
-    \hline
-    Full Test Specification & full_spec & generate_all_spec.py  \\
-    Test Report & test_report & generate_report.py  \\
-    Requirements Coverage & requirements_coverage &
-    generate_requirements_coverage.py   \\
-    API Coverage & api_coverage & generate_api_coverage.py  \\
-  \end{tabular}
-  \label{table:reports}
-\end{table}
-\end{center}
+As such, the goal of my project is to create a tool than can strip a container of all its unnecessary files and packages,
+leaving only the files needed for the application to run properly and export it as a \textit{Dockerfile}, the recipe used to create the container.\footnote[1]{
+   \textit{Docker} is the most popular containerization platform, hosting the largest repository of container images, \textit{Docker Hub}; often synonymous with the idea of containerization itself. 
+}
+ 
