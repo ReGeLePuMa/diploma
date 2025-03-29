@@ -1,0 +1,23 @@
+\chapter{Background}
+\label{chapter:background}
+
+\section{A brief history of containers}
+\label{sec:history}
+The idea of containerization is not a new one. The concept has it's roots
+since the late 70s, with \textit{chroot}, a Unix command that allows a process to change its root directory,
+effectively isolating it from the rest of the system \cite{history-of-containers}, creating
+so called \textit{chroot jails}. Over the decades, this concept grew and evolved, with the Introduction
+of \textit{FreeBSD jails} and \textit{Solaris Zones} around the turn of the millennium adding support for multiple 
+isolated environments within the same OS instance \cite{history-of-containers}. 
+
+The next major milestone happened in 2008 with the introduction of \textit{LXC} (Linux Containers),
+adding kernel-level support for containers, by leveraging two Linux kernel components: \textit{cgroups}, which
+provides ways to group processes in order to better manage resources and \textit{namespaces}, which provide isolation.\cite{history-of-containers}
+
+In 2013, the launch of \textit{Docker} radically changed the landscape of containerization by providing a developer-friendly way to 
+create, manage and deploy containers. Docker introduced the concept of container images, files which store the data needed for the container to run, 
+\textit{Docker Hub}, a public repository for sharing container images, and a powerful command-line interface for managing containers \cite{history-of-containers}.
+In the years that followed, Docker became synonymous with containerization, holding an overwhelming market share of \textit{87.85}\%\cite{docker-market-share} thus cementing
+themselves as the de facto standard for containerization.
+
+
