@@ -2,6 +2,13 @@
 \makeindex
 \begin{document}
 
+\lstdefinelanguage{Dockerfile}{
+  morekeywords={FROM, RUN, CMD, LABEL, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]",
+}
+
 \input{src/global}
 
 \begin{frontmatter} % roman numbering
