@@ -1,0 +1,19 @@
+\chapter{Motivation and Objectives}
+\label{chap:motivation-and-objectives}
+
+The main advantages of minimal containers are their enhanced security and
+small image size.
+Their improved security comes from the inherent properties of being minimal, meaning:
+\begin{itemize}
+    \item \textbf{minimized attack surface} - by having only the required dependencies for the application to run,
+the only attack vector a hacker has is the application itself and not other components
+    \item \textbf{clear dependency tree} - with only the required dependencies, it is easier to identify and
+audit them in case of a vulnerability being discovered,
+\cite{minimal-containers}
+\end{itemize}
+Additionally, their small size means that they are faster to deploy and use fewer system resources like \textit{CPU} and \textit{memory},
+which is especially important in a cloud environment where the cost is directly proportional to the resources used and shaving a
+couple of seconds off the deployment time can lead to hours, even days given the size of the cluster. \cite{container-deployment}.
+
+By creating a tool that can automatically detect an application's dependencies and create the Dockerfile which produces the minimal container for that app,
+we can save developers the time and effort of having to do it themselves, which can be tiresome and frustrating process.
