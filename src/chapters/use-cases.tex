@@ -1,0 +1,37 @@
+\chapter{Use Cases}
+\label{chapter:use-cases}
+
+A real world example for the need to generate these minimal Dockerfiles and
+the reason that spawned this project is \textit{Unikraft}\footnote[1]{\url{https://unikraft.org/}}.
+
+Unikraft was envisioned as a faster and more secure alternative to running applications in containers or virtual machines, by
+leveraging the power of ultra-lightweight virtual machines knows as unikernels \cite{unikraft}.
+
+\fig[scale=0.75]{src/img/vm-container-unikernel.png}{img:vm-container-unikernel}{High-level comparison of the software components of traditional VMs (a), containers (b), containers in VMs (c) with unikernels (d).}
+
+Unikernels are specialized operating systems that are built as single-address space binary objects, meaning that they don't 
+have user space-kernel space separation. They combine both the complete execution isolation and hardware access typical of VMs with the size of containers,
+which makes them ideal for cloud deployments  \cite{unikraft}.
+
+Unikraft provides the tools needed to build, run and manage unikernels, in the form of a command-line program called \textit{kraft}\footnote{\url{https://unikraft.org/docs/cli}}.
+It features an interface similar to that of Docker's, with it being able to run pre-build unikernels or create new ones from a file called \textit{Kraftfile}\footnote{also \textit{kraft.yaml} or \textit{kraft.yml} for legacy support}.
+
+\lstset{language=yaml,caption=Sample Kraftfile,label=lst:ex-kraftfile}
+\begin{lstlisting}
+    spec: v0.6
+    runtime: base:latest
+    rootfs: ./Dockerfile
+    cmd: ["/helloworld"]  
+\end{lstlisting}
+
+Kraftfiles are written in YAML\footnote{\url{https://yaml.org/}}, which follows an attribute-value structure. For my thesis, the only relevant attribute is \textit{rootfs}, which
+describes the source from which the unikernel's root filesystem is built. Although optional \cite{unikraft-filesystem}, since most applications do require one, it is usually specified.
+As unikernels operate in resource-constrained specialized environments where efficiency is crucial, so do their filesystems need to strike the balance between
+providing the necessary storage requirements and also adhering to their lightweight philosophy.
+
+There are many ways to define a root filesystem, one of which being highlighted in the Kraftfile example above, where a Dockerfile is used to build a container whose filesystem is later extracted to be used
+by the resulting unikernel. Thus, the Dockerfile should be as minimal as possible. So far, this process was done manually\footnote{
+    \url{https://unikraft.org/docs/contributing/adding-to-the-app-catalog}
+}, which explains the rather low number of applications that have been ported to Unikraft\footnote{
+    \url{https://github.com/unikraft/catalog}
+}, which need constant maintaining as different versions of the same app may require a new minimal Dockerfile. 
