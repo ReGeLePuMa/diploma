@@ -10,7 +10,9 @@ For finding the runtime dependencies, I will be following the steps outlined her
 be a three-pronged approach, consisting of:
 \begin{itemize}
     \item \textbf{Static analysis} - inspecting the executable file for any linked libraries.
-    \item \textbf{Dynamic analysis} - running the application and tracing its system calls.
+    \item \textbf{Dynamic analysis} - running the application and tracing its system calls \footnote[1]{
+        system calls, \textit{syscalls}, are the mechanism used by applications to request services from the kernel, like I/O, spawning processes, etc.
+    }.
     \item \textbf{Brute force} - a fail-safe incase the other two fail to yield any results.
 \end{itemize}
 

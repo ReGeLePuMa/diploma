@@ -39,7 +39,8 @@ This is done using the \textit{strace} command, which uses the \textit{ptrace} s
 
 For our scenario, we are interested in the \textit{openat}, which means that the application is trying to open a file, and \textit{execve}, which means that the application is trying to execute another program.
 The \textit{-f} flag is used to allow strace to also trace the child processes spawned by the application, thus 
-ensuring that we do not omit any dependencies.
+ensuring that we do not omit any dependencies. Additionally, it can trace processes that are already running using the \textit{-p} flag, which will
+be used to trace the process running inside the container, this however needing root privilege since the process inside the container is in another namespace. 
 
 \section{Brute Force}
 \label{sec:brute-force}
