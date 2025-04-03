@@ -1,0 +1,57 @@
+\chapter{Architecture Overview}
+\label{chapter:architecture}
+
+\section{Static Analysis}
+\label{sec:static-analysis}
+
+Static analysis is the process of analyzing a program's code without executing it. In our context, we will be using it
+to identify the libraries that the application is dynamically linked using the \textit{ldd} command.
+\begin{lstlisting}[language=bash, caption=ldd command, label=lst:ex-ldd]
+    ~ > ldd /usr/bin/man
+        linux-vdso.so.1 (0x00007ffe831f5000)
+        libmandb-2.9.1.so => /usr/lib/man-db/libmandb-2.9.1.so (0x00007f068b572000)
+        libman-2.9.1.so => /usr/lib/man-db/libman-2.9.1.so (0x00007f068b52f000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f068b502000)
+        libpipeline.so.1 => /lib/x86_64-linux-gnu/libpipeline.so.1 (0x00007f068b4f1000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f068b2ff000)
+        libgdbm.so.6 => /lib/x86_64-linux-gnu/libgdbm.so.6 (0x00007f068b2ef000)
+        libseccomp.so.2 => /lib/x86_64-linux-gnu/libseccomp.so.2 (0x00007f068b2cb000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f068b59b000)
+\end{lstlisting}
+
+The output of the command is a list of shared libraries that the application depends on, along with their paths.
+This approach works well for simple applications but it quickly becomes insufficient for most production applications.
+
+\section{Dynamic Analysis}
+\label{sec:dynamic-analysis}
+
+Dynamic analysis is the process of analyzing a program's behavior during its execution. Our use case is to identify the other files 
+that the application accesses during its execution, as well any spawned processes and their dependencies.
+This is done using the \textit{strace} command, which uses the \textit{ptrace} system call to trace the system calls made by a process.
+\begin{lstlisting}[language=bash, caption=strace command, label=lst:ex-strace]
+    ~ > strace -fe execve,openat echo "Hello, World\!"
+    execve("/usr/bin/echo", ["echo", "Hello, World!"], 0x7fff43b04ce8 /* 36 vars */) = 0
+    openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+    openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+    Hello, World!
+    +++ exited with 0 +++
+\end{lstlisting}
+
+For our scenario, we are interested in the \textit{openat}, which means that the application is trying to open a file, and \textit{execve}, which means that the application is trying to execute another program.
+The \textit{-f} flag is used to allow strace to also trace the child processes spawned by the application, thus 
+ensuring that we do not omit any dependencies.
+
+\section{Brute Force}
+\label{sec:brute-force}
+
+The brute force approach is a last resort method that is used should both the static and dynamic analysis fail in generating the minimal Dockerfile.
+Using the Docker SDK, we can extract the filesystem from the container and use it for this step. Given that in the containerized environment, the application is
+running normally and in a \textit{FROM scratch} environment it is not (which does not contain any files), therefore there exists a point where removing a file from the filesystem causes
+the application to fail. Since removing files one at a time and building a new container each time is not feasible, we have to attempt a more efficient approach, that being a \textit{binary search}.
+
+\fig[scale=1]{src/img/brute-force.png}{img:brute-force}{Brute force approach to finding the minimal Dockerfile}
+
+We start by splitting in half the filesystem into two buckets - \textit{used} and \textit{unused}. The decision of which files land in what bucket will be 
+left to a coin toss in order to ensure fairness. We then build the Dockerfile with the files in the \textit{used} bucket and run the application. If it fails, then we split the \textit{unused} bucket in half and repeat the process.
+If the app succeeds, we repeat the cycle by splitting the shrunken filesystem in half again and follow the same steps. This will repeat at max \textit{MAX_LIMIT} times, a predefined limit we impose on the number of iterations.
+This sifting process is a greedy one and thus will not always generate the minimal Dockerfile, but it will offer a good approximation of it, especially if the limit is set to a high value.
