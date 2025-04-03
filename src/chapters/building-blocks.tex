@@ -1,0 +1,30 @@
+\chapter{Building Blocks}
+\label{chapter:building-blocks}
+
+\fig[scale=0.30]{src/img/diagram.jpeg}{img:architecture}{High-level architecture of the application}
+
+My solution is a command-line tool that automates the process of determining the runtime dependencies of a 
+given application and generating the minimal Dockerfile.
+
+For finding the runtime dependencies, I will be following the steps outlined here \cite{unikraft-app-catalog} and here \cite{identify-dependencies} and will
+be a three-pronged approach, consisting of:
+\begin{itemize}
+    \item \textbf{Static analysis} - inspecting the executable file for any linked libraries.
+    \item \textbf{Dynamic analysis} - running the application and tracing its system calls.
+    \item \textbf{Brute force} - a fail-safe incase the other two fail to yield any results.
+\end{itemize}
+
+
+The handling of the interaction between the program and Docker is done through the the \textit{Docker SDK}\footnote{\url{https://docs.docker.com/reference/api/engine/sdk/}},
+which provides a programmatic way to interact with containers. It is available both
+for Python and Go, both very popular languages.
+
+\textit{Go} is a statically-typed, compiled language known for its simplicity and efficiency. It was built by Google 
+in 2007 for use in networking and infrastructure services, being designed to be efficient, readable and high-performing. \cite{golang}
+
+\textit{Python} is a high-level, interpreted language known for its simplicity and readability. It was created by Guido van Rossum in the late 1980s and has since become one of the most popular programming languages in the world. \cite{python}
+
+Although both languages are capable of achieving the same results, Go's performance superiority over Python, coupled with 
+its concurrency and low-level capabilities, make it the clear choice for this project.
+The choice of using Go is also motivated by the fact that Docker itself is written in Go \cite{docker-go}, which means that the SDK is
+better integrated with the rest of the Docker ecosystem and has better performance than the Python SDK.
