@@ -1,0 +1,103 @@
+\chapter{Implementation Details}
+\label{chap:implementation-details}
+
+\section{Overview}
+
+As stated previously, the implementation is written in Go, a statically typed, compiled language designed for simplicity and efficiency. The choice of Go was influenced by its 
+support for both low-level systems programming and high-level programming paradigms, making it suitable for building robust and efficient applications.
+Additionally, Go is one of the faster languages in terms of execution speed and features a rich ecosystem of community-built modules \cite{go-pkg}, which can be leveraged to speed up development.
+
+\fig[scale=0.3]{src/img/language-speed.jpeg}{img:language-speed}{Language execution speed comparison \cite{benjdd}}
+
+\section{Project Structure}
+
+The project is organized into multiple packages, each serving a specific purpose, as outlined in the architectural section.
+
+\lstset{language=bash,caption=Project Structure,label=lst:project-structure}
+\begin{lstlisting}
+    .
+    |-- cmd
+      |-- main.go
+    |-- dockerminimizer
+    |-- dockerminimizer.go
+    |-- go.mod
+    |-- go.sum
+    |-- install.sh
+    |-- ldd
+      |-- ldd.go
+    |-- logger
+      |-- logger.go
+    |-- preprocess
+      |-- preprocess.go
+    |-- README.md
+    |-- strace
+      |-- strace.go
+    |-- types
+      |-- types.go
+    |-- utils
+      |-- utils.go
+\end{lstlisting}
+
+The executable created is \textit{dockerminimizer}, which takes the following arguments:
+
+\begin{itemize}
+    \item \textbf{--file}: The path to the Dockerfile to be minimized.
+    \item \textbf{--image}: The name of an images from a Docker registry to be minimized
+    \item \textbf{--max_limit}: How many times should the binary search procedure be run for
+    \item \textbf{--debug}: Enable logging of actions 
+    \item \textbf{--timeout}: How long should the minimal Docker container run before being declared as successful
+    \item \textbf{--strace_path}: The path to a statically-linked strace binary
+    \item \textbf{--binary_search}: Decide whether to continue the minimization process with a binary search if dynamic analysis failed
+\end{itemize}
+
+\section{Preprocessing}
+
+After the arguments are parsed, the program will create a temporary directory where the necessary files for the minimal Dockerfile will be stored under 
+\textit{~/.dockerminimizer/<unique_id>}. The unique ID is generated using a \textit{MD5} hash of the current timestamp in order to ensure the uniqueness of the directory name should
+multiple instances of the program be run at the same time.
+The following steps are the building of the Docker image and the extraction of its filesystem to the directory. 
+There are multiple ways of extracting a Docker container's filesystem \cite{extract-filesystem}, but the one we want to use is the one that preserves the original filesystem, without
+adding any additional files. This can be achieved by passing the \textit{-o} flag to the build command, which will extract the unmodified filesystem to a desired location and type (the one
+we are interested in is tarball). 
+The docker image is then parsed for its metadata, which is stored in a JSON file, which contains information about the image's environment variables, entrypoint, command, exposed ports and user.
+This metadata is stored as a custom type defined in the \textit{types}.
+
+\lstset{language=Go,caption=Go DockerConfig structure,label=lst:metadata-type}
+\begin{lstlisting}
+    type DockerConfig struct {
+	User         string                    `json:"User"`
+	ExposedPorts map[string]map[string]any `json:"ExposedPorts"`
+	Env          []string                  `json:"Env"`
+	Cmd          []string                  `json:"Cmd"`
+	WorkingDir   string                    `json:"WorkingDir"`
+	Entrypoint   []string                  `json:"Entrypoint"`
+}
+\end{lstlisting}
+
+This is then used to create a template Dockerfile, which serves as a base for all the other Dockerfiles that will be generated.
+
+\lstset{language=Dockerfile,caption=Dockerfile.minimal.template,label=lst:template-minimal-dockerfile}
+\begin{lstlisting}
+FROM node:20.9.0 as builder
+
+WORKDIR /app
+
+COPY app.js /app/app.js
+COPY package.json /app/package.json
+COPY package-lock.json /app/package-lock.json
+
+RUN npm install
+EXPOSE 3000
+CMD ["node", "app.js"]
+
+
+FROM scratch
+
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV NODE_VERSION=20.9.0
+ENV YARN_VERSION=1.22.19
+WORKDIR /app
+EXPOSE 3000/tcp
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["node", "app.js"]
+\end{lstlisting}
