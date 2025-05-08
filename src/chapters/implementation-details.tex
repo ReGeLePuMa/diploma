@@ -101,3 +101,190 @@ EXPOSE 3000/tcp
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "app.js"]
 \end{lstlisting}
+
+This is then used to create the Dockerfile containing only the entrypoint/command files in order to check if it is already a minimal Dockerfile.
+Should it not be the case, the program will proceed to the static analysis phase.
+
+\section{Static Analysis}
+In the static analysis phase, the base Dockerfile default running command (i.e first entrypoint/command in the image configuration) is run through \textit{ldd} in order to determine 
+the libraries that are required for the program to run. In order to ensure that ldd finds the correct libraries, the command is run utilizing \textit{chroot} in the context of the 
+extracted filesystem.
+The output of the command is then parsed and stored into two dictionaries, one for the normal files and one for the symbolic links, which need to be resolved to the actual files in order to 
+be copied accurately into the Dockerfile.
+
+\lstset{language=Go,caption=ldd parser function,label=lst:ldd-parser}
+\begin{lstlisting}
+    func ParseOutput(output []byte, rootfsPath string) (map[string][]string, map[string]string) {
+        files := make(map[string][]string)
+        symLinks := make(map[string]string)
+        scanner := bufio.NewScanner(bytes.NewReader(output))
+        for scanner.Scan() {
+            line := scanner.Text()
+            if strings.Contains(line, "=>") {
+                parts := strings.Split(line, "=>")
+                lib := strings.Split(strings.TrimSpace(parts[1]), " ")[0]
+    
+                if strings.Contains(lib, "not found") {
+                    continue
+                }
+                utils.AddFilesToDockerfile(lib, files, symLinks, rootfsPath)
+    
+            } else if strings.Contains(line, "not found") {
+                continue
+            } else {
+                lib := strings.Split(strings.TrimSpace(line), " ")[0]
+                utils.AddFilesToDockerfile(lib, files, symLinks, rootfsPath)
+            }
+        }
+        return files, symLinks
+    }
+\end{lstlisting}
+
+The reason why we are storing the files in a dictionary where the key is the directory name is due to 
+the Docker's limit of 127 build stages, meaning that there can be at most 127 \textit{COPY} commands in the minimal Dockerfile.
+Fortunately, we can circumvent this by putting all the files that belong to the same directory in the same \textit{COPY} command.
+
+The way this is achieved is by utilizing Go's \textit{filepath} package, which allows for easy manipulation of file paths.
+
+\lstset{language=Go,caption=File util functions,label=lst:file-functions}
+\begin{lstlisting}
+func RealPath(path string) string {
+	realPath, _ := filepath.Abs(path)
+	return filepath.Clean(realPath)
+}
+
+func CheckIfFileExists(file string, envPath string) bool {
+	info, err := os.Stat(envPath + "/" + file)
+	return !os.IsNotExist(err) && !info.IsDir()
+}
+
+func CheckIfSymbolicLink(file string, envPath string) bool {
+	info, err := os.Lstat(envPath + "/" + file)
+	if err != nil {
+		return false
+	}
+	return info.Mode()&os.ModeSymlink != 0
+}
+
+func ReadSymbolicLink(file string, envPath string) string {
+	link, _ := os.Readlink(envPath + "/" + file)
+	resolved := link
+	if !filepath.IsAbs(link) {
+		resolved = filepath.Join(filepath.Dir(envPath+"/"+file), link)
+	}
+	return strings.TrimPrefix(resolved, envPath)
+}
+
+func AddFilesToDockerfile(file string, files map[string][]string, symLinks map[string]string, rootfsPath string) {
+	file = RealPath(file)
+	if CheckIfFileExists(file, rootfsPath) {
+		if CheckIfSymbolicLink(file, rootfsPath) {
+			symLinks[file] = ReadSymbolicLink(file, rootfsPath)
+		} else {
+			files[filepath.Dir(file)] = AppendIfMissing(files[filepath.Dir(file)], file)
+		}
+	}
+}
+\end{lstlisting}
+
+With the two dictionaries populated, they are used to create the Dockerfile for this stage, by adding the \textit{COPY} commands for each directory to 
+the template Dockerfile, which is then tested to see if it can build and run the container successfully. If it it not, the next step is the dynamic analysis of the command.
+
+\section{Dynamic Analysis}
+For this stage, we attach a \textit{strace} probe to the docker running command, in order to determine the files used and processes that are spawned by the command.
+In order to do this, we utilize Docker's volumes to mount a statically-linked \textit{strace} binary into the container, as well as a logfile to save the output of the command.
+The reason for using a statically-linked binary is so that the libraries used by strace don't interfere with the libraries used by the command.
+To determine the runtime dependencies of the command, we will trace the \textit{open} and \textit{exec} familly of syscalls \cite{identify-dependencies} as well as passing the \textit{-f} flag
+to trace the child processes as well.
+
+\lstset{language=Go,caption=File util functions,label=lst:file-functions}
+\begin{lstlisting}
+    func parseOutput(output string, syscalls []string, files map[string][]string, symLinks map[string]string, envPath string) {
+        regexes := make(map[string]*regexp.Regexp)
+        for _, syscall := range syscalls {
+            regexes[syscall] = regexp.MustCompile(syscall + `\([^"]*?"([^"]+)"`)
+        }
+        for line := range strings.SplitSeq(output, "\n") {
+            for _, syscall := range syscalls {
+                if regexes[syscall].MatchString(line) {
+                    match := regexes[syscall].FindStringSubmatch(line)
+                    if len(match) > 1 {
+                        utils.AddFilesToDockerfile(match[1], files, symLinks, envPath+"/rootfs")
+                    }
+                    break
+                }
+            }
+        }
+    }
+\end{lstlisting}
+
+Parsing the output is made trivial by using regexes to match the syscalls and extract the first text between \textit{""}.
+
+A problem that was quickly encountered was that in dealing with commands that are run via shebangs.
+A shebang is a special comment that is used to indicate the interpreter that should be used to run the script, and are always 
+put at the top of the file, starting with the characters \textit{\#!}.
+When stracing the command, only the command itself is being shown as executed, and not the shebang. This is due 
+to how the operating system handles the shebang. Finding the interpreter is done internally by the kernel in the
+\textit{load_script} function, which is not visible to the strace command \cite{demystifyng-shebangs}. 
+To fix this and make this step more robust, we firstly determine if a shebang is present in the base command, and afterwards 
+we follow the minimization steps of static and dynamic analysis on the interpreter as well.
+
+\lstset{language=Go,caption=File util functions,label=lst:file-functions}
+\begin{lstlisting}
+    func getSheBang(command string, rootfsPath string) string {
+	file, err := os.Open(rootfsPath + "/" + command)
+	if err != nil {
+		log.Error("Failed to open file:", command)
+		return ""
+	}
+	defer file.Close()
+	var firstLine []byte
+	buf := make([]byte, 1)
+	for {
+		n, err := file.Read(buf)
+		if n > 0 {
+			if buf[0] == '\n' {
+				break
+			}
+			firstLine = append(firstLine, buf[0])
+		}
+		if err != nil {
+			break
+		}
+	}
+	return string(firstLine)
+}
+
+func parseShebang(imageName string, containerName string, syscalls []string,
+	files map[string][]string, symLinks map[string]string, envPath string, metadata types.DockerConfig, timeout int) (map[string][]string, map[string]string) {
+	command := utils.GetContainerCommand(imageName, envPath, metadata)
+	hasSudo := utils.HasSudo()
+	shebang := getSheBang(command, envPath+"/rootfs")
+	regex := regexp.MustCompile(`^#!\s*([^\s]+)`)
+	if !regex.MatchString(shebang) {
+		log.Error("Failed to find shebang in file:", command)
+		return files, symLinks
+	}
+	match := regex.FindStringSubmatch(shebang)
+	if len(match) < 2 {
+		log.Error("Failed to find interpreter in shebang:", command)
+		return files, symLinks
+	}
+	interpreter := match[1]
+	lddCommand := hasSudo + " chroot " + envPath + "/rootfs ldd " + interpreter
+	log.Info("Running command:", lddCommand)
+	lddOutput, err := exec.Command("sh", "-c", lddCommand).CombinedOutput()
+	if err != nil {
+		log.Error("Failed to run ldd command\n" + err.Error())
+	}
+	files, symLinks = ldd.ParseOutput(lddOutput, envPath+"/rootfs")
+
+	output := getStraceOutput(imageName, envPath+"/strace", envPath+"/log.txt", syscalls,
+		containerName, interpreter, envPath, metadata, timeout)
+	parseOutput(output, syscalls, files, symLinks, envPath)
+	return files, symLinks
+}
+\end{lstlisting}
+
+Finally, we create the Dockerfile for this stage and validate it like in the static analysis phase.
+
