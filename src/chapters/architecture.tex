@@ -50,7 +50,7 @@ Using the Docker SDK, we can extract the filesystem from the container and use i
 running normally and in a \textit{FROM scratch} environment it is not (which does not contain any files), therefore there exists a point where removing a file from the filesystem causes
 the application to fail. Since removing files one at a time and building a new container each time is not feasible, we have to attempt a more efficient approach, that being a \textit{binary search}.
 
-\fig[scale=1]{src/img/brute-force.png}{img:brute-force}{Brute force approach to finding the minimal Dockerfile}
+\fig[scale=0.5]{src/img/brute-force.pdf}{img:brute-force}{Brute force approach to finding the minimal Dockerfile}
 
 We start by splitting in half the filesystem into two buckets - \textit{used} and \textit{unused}. The decision of which files land in what bucket will be 
 left to a coin toss in order to ensure fairness. We then build the Dockerfile with the files in the \textit{used} bucket and run the application. If it fails, then we split the \textit{unused} bucket in half and repeat the process.
