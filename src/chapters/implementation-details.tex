@@ -191,6 +191,9 @@ With the two dictionaries populated, they are used to create the Dockerfile for 
 the template Dockerfile, which is then tested to see if it can build and run the container successfully. If it it not, the next step is the dynamic analysis of the command.
 
 \section{Dynamic Analysis}
+
+\fig[scale=0.5]{src/img/bind-mount.pdf}{img:bind-mount}{Dynamic analysis using strace to determine the files used by the command}
+
 For this stage, we attach a \textit{strace} probe to the docker running command, in order to determine the files used and processes that are spawned by the command.
 In order to do this, we utilize Docker's volumes to mount a statically-linked \textit{strace} binary into the container, as well as a logfile to save the output of the command.
 The reason for using a statically-linked binary is so that the libraries used by strace don't interfere with the libraries used by the command.
@@ -225,7 +228,7 @@ A shebang is a special comment that is used to indicate the interpreter that sho
 put at the top of the file, starting with the characters \textit{\#!}.
 When stracing the command, only the command itself is being shown as executed, and not the shebang. This is due 
 to how the operating system handles the shebang. Finding the interpreter is done internally by the kernel in the
-\textit{load_script} function, which is not visible to the strace command \cite{demystifyng-shebangs}. 
+\textit{load_script} function, which is not visible to the strace command \cite{demystifying-shebang}. 
 To fix this and make this step more robust, we firstly determine if a shebang is present in the base command, and afterwards 
 we follow the minimization steps of static and dynamic analysis on the interpreter as well.
 
