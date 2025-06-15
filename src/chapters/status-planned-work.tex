@@ -4,14 +4,37 @@
 \section{Status}
 \label{sec:status}
 
-The application is implemented up to the binary search analysis stage. There are a few
-issues with the dynamic analysis, but they are not critical. The application is able
-to minimize quite a few Dockerfiles, but not as many as I would have excepted, possibly
-related to the issues with the dynamic analysis.
+The application has been successfully implemented and is mature enough to be able to 
+be able to minimize a plethora of applications. I was able to implement all the functionalities that 
+I set out to do, including the static analysis part, the dynamic analysis part, and the
+binary search phase. Although the dynamic analysis is not fully reliable and the binary search 
+is computationally intensive with a high execution time, as seen in the performance evaluation, 
+the application was able to minimize over 38 applications, with an average size reduction of 70\%.
 
 \section{Planned Work}
 \label{sec:planned-work}
 
-The next steps are doing more research on the issues with the dynamic analysis part and then 
-implementing the binary search algorithm. With that, all Dockerfiles should be minimized with a 
-huge penalty in the resource usage and execution time.
+In the future, I plan to improve the following aspects of the application:
+\begin{itemize}
+    \item \textbf{Dynamic Analysis}
+    \item \textbf{Binary Search} 
+    \item \textbf{Resolve CVE\footnote[1]{Common Vulnerabilities and Exposures} and Security Issues}
+    \item \textbf{Improve User Experience}
+\end{itemize}
+
+The dynamic analysis part of the application is not fully reliable, as it does not always correctly identify all the files that are not used by the application.
+One way to improve this is to use other tracing ways besides \textit{strace}, such as \textit{ftrace\footnote[2]{\url{https://www.kernel.org/doc/html/v5.0/trace/ftrace.html}}} or  \textit{extended Berkeley Packet Filter (eBPF)\footnote[3]{\url{https://www.kentik.com/kentipedia/what-is-ebpf-extended-berkeley-packet-filter/}}}.
+can provide more detailed information about the application's usage patterns.
+Additionally, an application can be run multiple times with different inputs to ensure that all the files that are used by the application are identified.
+
+The binary search part is computationally intensive due to the archiving of many files and building of the images per each iteration.
+The assumption made in the implementation is that the files needed by the application are all equally likely to appear in the whole filesystem, which is not always true.
+A more heuristic approach can be used to identify the files that are more likely to be needed by the application. Furthermore, the random selection of files can lead to the situation
+where the file that is needed by the application is skipped multiple times due to landing \textit{tails} in the coin toss. This can be mitigated by analyzing the exit code of the container and add the missing file
+without needing to run the iteration again. 
+
+A new feature that I plan to implement is the ability to resolve any security issues that the Dockerfile I am minimizing has, such as vulnerabilities, exposed secrets and misconfigurations,
+inspired by \textit{trivy\footnote[4]{\url{https://trivy.dev/}}}.
+
+Finnaly, I plan to add a graphical user interface (GUI) to the application, which will make it easier to use and more user-friendly.
+The GUI will allow users to easily select the Dockerfile/image they want to minimize, view the progress of the minimization process, and see the results of the minimization.

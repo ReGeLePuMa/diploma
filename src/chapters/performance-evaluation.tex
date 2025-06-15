@@ -21,3 +21,9 @@ The average size reduction across all applications was 70\%, which is a signific
 For a full breakdown of the size reduction per application, see the chart below: 
 
 \fig[width=0.8\textwidth, height=0.3\textheight]{src/img/all_stage_reductions.pdf}{img:dockerminimizer-size-reduction-per-app}{Size reduction per application}[2pt]
+
+The main issues that I identified with the application were related to the \textit{Dynamic Analysis} stage, where the application was not able to correctly identify all the files that were not used by the application. This was due to the fact that some applications require a more complex analysis of their dependencies and usage patterns, 
+which \textit{ptrace} that \textit{strace} uses is not able to provide.
+Another issue was the relatively high execution time of the \textit{Binary Search} stage, which can take a long time to complete for larger applications, owing to the archiving of many files and building of the images per each iteration,
+which is the reason why I limited the number of iterations to 3.
+Overall, the application was able to successfully minimize a wide range of applications, with an average size reduction of 70\%.
