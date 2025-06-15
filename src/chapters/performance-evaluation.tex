@@ -4,7 +4,7 @@
 In order to evaluate the minimization process, I tried minimizing a wide range of applications, from simple \textit{Hello World} programs to complex 
 software like \textit{Wordpress}, \textit{Chromium} and \textit{MariaDB}, summing a sample size of 
 38. For each application, I calculated the size reduction of the minimal Docker image obtained by the minimization process compared to the 
-original Docker image as well as the stage it reached in the minimization process (\textit{Static Analysis}, \textit{Dynamic Analysis} or \textit{Binary Search\footnote{I chose to limit the steps of the binary search to 3, due to risks of hardware failure }}).
+original Docker image as well as the stage it reached in the minimization process (\textit{Static Analysis}, \textit{Dynamic Analysis} or \textit{Binary Search\footnote{I chose to limit the steps of the binary search to 3, due to time constraints and fear of hardware failure }}).
 The results are as follows:
 
 \fig[scale=0.5]{src/img/pie_chart.pdf}{img:dockerminimizer-performance}{Distribution of the results by stage of minimization}[2pt]

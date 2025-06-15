@@ -443,11 +443,13 @@ that will be used.
 
 This is done to ensure fairness in the selection of the files, assuming that all files are equally likely to be used by the application.
 
+\fig[scale=0.5]{src/img/tarball-add.pdf}{img:tarball-add}{Adding a tarball to the Dockerfile}[2pt]
+
+
 In order to check if these are the files that will produce a running container, we need to add them to the Dockerfile and build the image. However, we cannot simply follow the 
 same steps as in the static and dynamic analysis phases, since of the sheer number of files that have to be copied which run the risk of exceeding Docker's hard limit of \textit{127} image layers
 \cite{docker-layers}. In order to circumvent this, we will create a tarball (tar archive) of the files used and add it to the Dockerfile using the \textit{ADD} command, which will automatically extract the files 
 into the container's filesystem.
 
-\fig[scale=0.5]{src/img/tarball-add.pdf}{img:tarball-add}{Adding a tarball to the Dockerfile}[2pt]
 
 Finally, we validate the Dockerfile by building the image and running it to check if the command executes successfully. 
