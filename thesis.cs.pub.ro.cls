@@ -57,6 +57,8 @@
 % Treat _ as a normal character
 \usepackage{underscore}
 
+\usepackage{xparse}
+
 % Support for including graphics
 \usepackage{graphicx}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
@@ -228,12 +230,16 @@
 % command for inserting labeled figures
 % Usage: \fig{file}{label}{caption}
 %   TODO: references should point to the top of the image
-\newcommand{\fig}[4][]{
+\NewDocumentCommand{\fig}{O{} m m m O{0pt}}{
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[#1]{#2}
+		{%
+			\setlength{\fboxrule}{#5} % Local border thickness
+			\setlength{\fboxsep}{4pt}  % Optional: space between image and frame
+			\fbox{\includegraphics[#1]{#2}}%
+		}
 		\caption{#4 \label{#3}}
-    \end{center}
+	\end{center}
 \end{figure}
 }
 % suport for multiple columns
