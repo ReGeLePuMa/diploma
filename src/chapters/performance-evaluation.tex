@@ -1,4 +1,23 @@
 \chapter{Performance Evaluation}
 \label{chapter:performance-evaluation}
 
-\fig[scale=0.5]{src/img/docker_image_size_comparison.png}{img:dockerminimizer-performance}{Minimal dockerfile comparision}
+In order to evaluate the minimization process, I tried minimizing a wide range of applications, from simple \textit{Hello World} programs to complex 
+software like \textit{Wordpress}, \textit{Chromium} and \textit{MariaDB}, summing a sample size of 
+38. For each application, I calculated the size reduction of the minimal Docker image obtained by the minimization process compared to the 
+original Docker image as well as the stage it reached in the minimization process (\textit{Static Analysis}, \textit{Dynamic Analysis} or \textit{Binary Search\footnote{I chose to limit the steps of the binary search to 3, due to risks of hardware failure }}).
+The results are as follows:
+
+\fig[scale=0.5]{src/img/pie_chart.pdf}{img:dockerminimizer-performance}{Distribution of the results by stage of minimization}[2pt]
+
+The chart above shows that the program was able to correctly minimize applications in all three stages and that the majority of the applications were minimized in the 
+\textit{Static Analysis} and \textit{Dynamic Analysis} stages, with only the more complex applications requiring the \textit{Binary Search} stage.
+
+In terms of the size reduction per stage, the results are the following:
+
+\fig[scale=0.5]{src/img/reduction_chart.pdf}{img:dockerminimizer-size-reduction}{Size reduction per stage of minimization}[2pt]
+
+As displayed in the chart above, the applications that benefited the most from the minimzation process were those that were able to be minimized in the \textit{Static Analysis} stage, with an average size reduction of 96\%. The applications that required the \textit{Dynamic Analysis} stage had an average size reduction of 80\%, while those that required the \textit{Binary Search} stage had an average size reduction of 17\% ( with 3 iterations ).
+The average size reduction across all applications was 70\%, which is a significant improvement over the original Docker images.
+For a full breakdown of the size reduction per application, see the chart below: 
+
+\fig[width=0.8\textwidth, height=0.3\textheight]{src/img/all_stage_reductions.pdf}{img:dockerminimizer-size-reduction-per-app}{Size reduction per application}[2pt]
