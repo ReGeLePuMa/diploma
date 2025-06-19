@@ -159,7 +159,14 @@
 
 \newenvironment{frontmatter}{\pagenumbering{roman}}{\newpage \pagenumbering{arabic}}
 
-\renewenvironment{abstract}{\null\vfil\prefacesection{Abstract}}{\par\vfill\null}
+\renewenvironment{abstract}{\null\vfil\abstractsection{Abstract}}{\par\vfill\null}
+
+\newenvironment{sinopsis}{\null\vfil\abstractsection{Sinopsis}}{\par\vfill\null}
+
+
+\def\abstractsection#1{%
+	\section*{#1}
+	\addcontentsline{toc}{chapter}{#1}}
 
 \def\prefacesection#1{%
 	\chapter*{#1}
