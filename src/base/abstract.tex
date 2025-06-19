@@ -1,3 +1,11 @@
 % This file contains the abstract of the thesis
 
-Here goes the abstract about \project. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam lectus vel orci malesuada accumsan. Sed lacinia egestas tortor, eget tristique dolor congue sit amet. Curabitur ut nisl a nisi consequat mollis sit amet quis nisl. Vestibulum hendrerit velit at odio sodales pretium. Nam quis tortor sed ante varius sodales. Etiam lacus arcu, placerat sed laoreet a, facilisis sed nunc. Nam gravida fringilla ligula, eu congue lorem feugiat eu.
+Containers are a popular technology for deploying applications in a consistent and isolated environment.
+The most popular containerization platform is Docker, which allows for the creation of container images by
+defining a set of instructions in a simple text file called a \textit{Dockerfile}.
+These images, however, do not contain only application code, but additional software that helps developers
+manage and interact with the container.
+This thesis explores the process of extracting the the minimal set of files needed to run the containerized application by
+applying static, dynamic and brute force analysis techniques with the goal of creating a Dockerfile capable of creating such an image.
+Additionally, we also investigate the advantages of using such minimal images in production environments as well as examine specific use
+case scenarios for the creation of minimal Dockerfiles, especially in regards to the Unikraft project.
