@@ -7,11 +7,32 @@ the reason that spawned this project is \textit{Unikraft}\footnote[1]{\url{https
 Unikraft was envisioned as a faster and more secure alternative to running applications in containers or virtual machines, by
 leveraging the power of ultra-lightweight virtual machines knows as unikernels \cite{unikraft}.
 
-\fig[scale=1]{src/img/vm-container-unikernel.pdf}{img:vm-container-unikernel}{High-level comparison of the software components of traditional VMs (a), containers (b), containers in VMs (c) with unikernels (d).}[2pt]
+\fig[scale=1]{src/img/vm-container-unikernel.pdf}{img:vm-container-unikernel}{High-level comparison of the software components of traditional VMs (a), containers (b), containers in VMs (c) with unikernels (d). \cite{unikraft}}[2pt]
 
 Unikernels are specialized operating systems that are built as single-address space binary objects, meaning that they don't 
 have user space-kernel space separation. They combine both the complete execution isolation and hardware access typical of VMs with the size of containers,
 which makes them ideal for cloud deployments  \cite{unikraft}.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Property} & \textbf{Virtual Machines} & \textbf{Containers} & \textbf{Unikernels} \\
+\hline
+Time performance & Slowest of the 3 & Fast & Fast \\
+\hline
+Memory footprint & Heavy & Depends on the number of features & Light \\
+\hline
+Security & Very secure & Least secure of the 3 & Very secure \\
+\hline
+Features & Everything you could think of & Depends on the needs & Only the absolute necessary \\
+\hline
+\end{tabular}
+\caption{Comparison between Virtual Machines, Containers, and Unikernels \cite{unikraft}}
+\label{tab:vm-container-unikernel-comparison}
+\end{table}
+
 
 Unikraft provides the tools needed to build, run and manage unikernels, in the form of a command-line program called \textit{kraft}\footnote{\url{https://unikraft.org/docs/cli}}.
 It features an interface similar to that of Docker's, with it being able to run pre-build unikernels or create new ones from a file called \textit{Kraftfile}\footnote{also \textit{kraft.yaml} or \textit{kraft.yml} for legacy support}.

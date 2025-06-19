@@ -5,9 +5,8 @@
 \label{sec:history}
 The idea of containerization is not a new one. The concept has it's roots
 since the late 70s, with \textit{chroot}, a Unix command that allows a process to change its root directory,
-effectively isolating it from the rest of the system \cite{history-of-containers}, creating
-so called \textit{chroot jails}. Over the decades, this concept grew and evolved, with the introduction
-of \textit{FreeBSD jails} and \textit{Solaris Zones} around the turn of the millennium adding support for multiple 
+thus segregating it from the rest of the system \cite{history-of-containers}. Over the decades, this concept grew and evolved, with the introduction
+of \textit{FreeBSD jails} and \textit{Solaris Zones}, so called \textit{chroot jails}, around the turn of the millennium which added support for multiple
 isolated environments within the same OS instance \cite{history-of-containers}. 
 
 The next major milestone happened in 2008 with the introduction of \textit{LXC} (Linux Containers),
@@ -18,14 +17,13 @@ In 2013, the launch of \textit{Docker} radically changed the landscape of contai
 create, manage and deploy containers. Docker introduced the concept of container images, files which store the data needed for the container to run, 
 \href{https://hub.docker.com/}{\textit{Docker Hub}}, a public repository for sharing container images, and a powerful command-line interface for managing containers \cite{history-of-containers}.
 In the years that followed, multiple platforms sprung up such as \textit{Apptainer} and \textit{Podman}, which are both open-source alternatives to Docker, but none of them managed to gain the same level of popularity.
-As such, Docker became synonymous with containerization, holding an overwhelming market share of \textit{87.85}\%\cite{docker-market-share} thus cementing
-themselves as the de facto standard in the industry.
+As such, Docker became synonymous with containerization, holding an overwhelming market share of \textit{87.85}\%\cite{docker-market-share}, becoming the unofficial industry standard.
 
 \section{The anatomy of a container}
 \label{sec:anatomy}
 
 
-\fig[scale=0.5]{src/img/containers-vs-vms.png}{img:containers-vs-vms}{Containers vs VMs}[2pt]
+\fig[scale=0.5]{src/img/containers-vs-vms.png}{img:containers-vs-vms}{Containers vs VMs \cite{comparing-vms-and-containers}}[2pt]
 
 As opposed to virtual machines, which run a full operating system on top of a hypervisor, containers share the host operating system and run as isolated processes
 making them much more lightweight and efficient by only having to package the application and its dependencies into a so-called container image.
@@ -34,7 +32,7 @@ Currently, there are over 10000 container images available on \href{https://hub.
 
 Now, how do we create our own container image? By creating a \textit{Dockerfile}, a simple text file that contains all the necessary steps to build the image.
 
-\fig[scale=0.5]{src/img/docker-build-stages.pdf}{img:docker-build-stages}{Steps to containerize an application from a Dockerfile}[2pt]
+\fig[scale=0.5]{src/img/docker-build-stages.pdf}{img:docker-build-stages}{Steps to containerize an application from a Dockerfile \cite{docker-introduction}}[2pt]
 
 \lstset{language=Dockerfile,caption=Sample Dockerfile,label=lst:ex-dockerfile}
 \begin{lstlisting}
@@ -46,14 +44,14 @@ CMD ["python", "adapter.py"]
 \end{lstlisting}
 
 The format of a Dockerfile is quite simple, with each line representing a command that will be executed in order, the specifications for what each command does can be found in the official documentation\footnote[1]{\href{https://docs.docker.com/reference/dockerfile/}{https://docs.docker.com/reference/dockerfile/}}
-As each command is executed, a new layer is applied on top of the previous one, the container image being represented as a stack of these layers. A layer represents a change to the base image layer such as adding or removing files, installing packages or changing environment variables.
+A container image is built incrementally, with each command producing a new layer stacked upon the last. These layers encapsulate changes made to the base image, such as adding or deleting files, installing software, or setting environment variables. \cite{image-layers}.
 
-\fig[scale=0.25]{src/img/container-as-layers.png}{img:container-as-layers}{Container layers}
+\fig[scale=0.25]{src/img/container-as-layers.png}{img:container-as-layers}{Container layers \cite{docker-image-layers}}
 
 All Dockerfiles require a base image, which is specified by the keyword \textit{FROM}.
 The base image can be represented by either an existing image, either local or remote , or if you want to create your own, you can use \textit{\textbf{FROM} scratch} to start from an empty filesystem.
 
-\fig[scale=0.5]{src/img/docker-architecture.pdf}{img:docker-architecture}{Docker architecture}[2pt]
+\fig[scale=0.5]{src/img/docker-architecture.pdf}{img:docker-architecture}{Docker architecture \cite{docker-introduction}}[2pt]
 
 Additionally, Docker supports building the container image in multiple stages, by using the \textit{FROM} command multiple times in the same Dockerfile.
 

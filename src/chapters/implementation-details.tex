@@ -202,7 +202,7 @@ The reason for using a statically-linked binary is so that the libraries used by
 To determine the runtime dependencies of the command, we will trace the \textit{open} and \textit{exec} familly of syscalls \cite{identify-dependencies} as well as passing the \textit{-f} flag
 to trace the child processes as well.
 
-\lstset{language=Go,caption=File util functions,label=lst:file-functions}
+\lstset{language=Go,caption=Strace output parser,label=lst:strace-parser}
 \begin{lstlisting}
     func parseOutput(output string, syscalls []string, files map[string][]string, symLinks map[string]string, envPath string) {
         regexes := make(map[string]*regexp.Regexp)
@@ -234,7 +234,7 @@ to how the operating system handles the shebang. Finding the interpreter is done
 To fix this and make this step more robust, we firstly determine if a shebang is present in the base command, and afterwards 
 we follow the minimization steps of static and dynamic analysis on the interpreter as well.
 
-\lstset{language=Go,caption=File util functions,label=lst:file-functions}
+\lstset{language=Go,caption=Parsing and determening shebang dependencies utility,label=lst:shebang-parser}
 \begin{lstlisting}
     func getSheBang(command string, rootfsPath string) string {
 	file, err := os.Open(rootfsPath + "/" + command)
@@ -443,7 +443,7 @@ that will be used.
 
 This is done to ensure fairness in the selection of the files, assuming that all files are equally likely to be used by the application.
 
-\fig[scale=0.5]{src/img/tarball-add.pdf}{img:tarball-add}{Adding a tarball to the Dockerfile}[2pt]
+\fig[scale=0.5]{src/img/tarball-add.pdf}{img:tarball-add}{Adding a tarball to the Dockerfile \cite{docker-add-command}}[2pt]
 
 
 In order to check if these are the files that will produce a running container, we need to add them to the Dockerfile and build the image. However, we cannot simply follow the 
