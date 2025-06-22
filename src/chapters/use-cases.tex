@@ -6,12 +6,13 @@ the reason that spawned this project is \textit{Unikraft}\footnote[1]{\url{https
 
 Unikraft was envisioned as a faster and more secure alternative to running applications in containers or virtual machines, by
 leveraging the power of ultra-lightweight virtual machines knows as unikernels \cite{unikraft}.
+An intuition of how unikernels compare to traditional VMs and containers is presented in the figure below.   
 
-\fig[scale=1]{src/img/vm-container-unikernel.pdf}{img:vm-container-unikernel}{High-level comparison of the software components of traditional VMs (a), containers (b), containers in VMs (c) with unikernels (d). \cite{unikraft}}[2pt]
+\fig[scale=0.95]{src/img/vm-container-unikernel.pdf}{img:vm-container-unikernel}{High-level comparison of the software components of traditional VMs (a), containers (b), containers in VMs (c) with unikernels (d). \cite{unikraft}}[2pt]
 
 Unikernels are specialized operating systems that are built as single-address space binary objects, meaning that they don't 
 have user space-kernel space separation. They combine both the complete execution isolation and hardware access typical of VMs with the size of containers,
-which makes them ideal for cloud deployments  \cite{unikraft}.
+which makes them ideal for cloud deployments  \cite{unikraft}. A brief comparison of the three technologies is presented in the table below.
 
 \begin{table}[ht]
 \centering
@@ -35,7 +36,8 @@ Features & Everything you could think of & Depends on the needs & Only the absol
 
 
 Unikraft provides the tools needed to build, run and manage unikernels, in the form of a command-line program called \textit{kraft}\footnote{\url{https://unikraft.org/docs/cli}}.
-It features an interface similar to that of Docker's, with it being able to run pre-build unikernels or create new ones from a file called \textit{Kraftfile}\footnote{also \textit{kraft.yaml} or \textit{kraft.yml} for legacy support}.
+It features an interface similar to that of Docker's, with it being able to run pre-build unikernels or create new ones from a file called \textit{Kraftfile}\footnote{also \textit{kraft.yaml} or \textit{kraft.yml} for legacy support},
+with an example provided below.
 
 \lstset{language=yaml,caption=Sample Kraftfile,label=lst:ex-kraftfile}
 \begin{lstlisting}
